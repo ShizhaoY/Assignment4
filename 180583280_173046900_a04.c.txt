@@ -1,3 +1,8 @@
+/*
+yuxx8328@mylaurier.ca 180583280
+chun6900@mylaurier.ca 173046900
+github:https://github.com/ShizhaoY/Assignment4
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

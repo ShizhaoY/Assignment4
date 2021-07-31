@@ -157,10 +157,76 @@ void runRL(){
 }
 
 void runStatus(){
-
+    printf("Available Resources:\n");
+    for(int i = 0; i < resourceNumber; ++i){
+        printf("%d ",bankAlgorithmData.available[i]);
+        if(i == resourceNumber - 1){
+            printf("\n");
+        }
+    }
+    printf("Maximum Resources:\n");
+    for(int i = 0; i < processNumber; ++i){
+        for(int j = 0; j < resourceNumber; ++j){
+            printf("%d ",bankAlgorithmData.maximum[i][j]);
+            if(j == resourceNumber - 1)
+                printf("\n");
+        }
+    }
+    printf("Allocated Resources:\n");
+    for(int i = 0; i < processNumber; ++i){
+        for(int j = 0; j < resourceNumber; ++j){
+            printf("%d ",bankAlgorithmData.allocated[i][j]);
+            if(j == resourceNumber - 1)
+                printf("\n");
+        }
+    }    
+    printf("Need Resources:\n");
+    for(int i = 0; i < processNumber; ++i){
+        for(int j = 0; j < resourceNumber; ++j){
+            printf("%d ",bankAlgorithmData.need[i][j]);
+            if(j == resourceNumber - 1)
+                printf("\n");
+        }
+    }    
 }
 void runRun(){
-
+    if(safeAlgorithm() == 1){
+        printf("Safe Sequence is:");
+        for(int i = 0; i < processNumber; ++i){
+            printf(" %d",processRunSequence[i]);
+        }
+        printf("\n");
+        for(int i = 0; i < processNumber; ++i){
+            int processId = processRunSequence[i];
+            printf("--> Customer/Thread %d\n",processId);
+            printf("Allocated resources:");
+            for(int k = 0;k < resourceNumber; ++k){
+                printf(" %d",bankAlgorithmData.allocated[processId][k]);
+            }
+            printf("\n");
+            printf("Needed:");
+            for(int j = 0; j < resourceNumber; ++j){
+                printf(" %d",bankAlgorithmData.maximum[processId][j] - bankAlgorithmData.allocated[processId][j]);
+            }
+            printf("\n");
+            printf("Available:");
+            for(int j = 0; j < resourceNumber; ++j){
+                printf(" %d",bankAlgorithmData.available[j]);
+            }
+            printf("\n");
+            printf("Thread has started\n");
+            printf("Thread has finished\n");
+            printf("Thread is releasing resources\n");
+            for(int j = 0; j < resourceNumber; ++j){
+                bankAlgorithmData.available[j] += bankAlgorithmData.allocated[processId][j];
+            }
+            printf("New Available:");
+            for(int j = 0; j < resourceNumber; ++j){
+                printf(" %d",bankAlgorithmData.available[j]);
+            }
+            printf("\n");
+        }
+    }       
 }
 void loopCommand(){
     while(1){

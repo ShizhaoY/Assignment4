@@ -10,10 +10,10 @@ struct BankAlgorithmData{
     int maximum[MAX_PROCESS_NUMBER][MAX_RESOURCE_NUMBER];
     int allocated[MAX_PROCESS_NUMBER][MAX_RESOURCE_NUMBER];
     int need[MAX_PROCESS_NUMBER][MAX_RESOURCE_NUMBER];
-} ;
+};
 
 struct BankAlgorithmData bankAlgorithmData;
-int processRunSequence[MAX_PROCESS_NUMBER] ;
+int processRunSequence[MAX_PROCESS_NUMBER];
 int processNumber = 0;
 int resourceNumber = 0;
 
@@ -70,6 +70,121 @@ void printfBaseInformation(){
     }
 }
 
+int safeAlgorithm(){
+    int work[MAX_RESOURCE_NUMBER]={0};
+    int finish[MAX_PROCESS_NUMBER]={0};
+    for(int i = 0; i < MAX_RESOURCE_NUMBER; ++i){
+        work[i] = bankAlgorithmData.available[i];
+    }
+    int finishNumber = 0;
+    while(1){
+        int flag = 0;
+        for(int i = processNumber - 1; i >= 0; i--){
+            for(int j = 0; j < resourceNumber; ++j){
+                if(finish[i] == 1 || work[j] < bankAlgorithmData.need[i][j]){
+                    break;
+                }
+                if(j == resourceNumber - 1){
+                    for(int k = 0; k < resourceNumber; ++k){
+                        work[k]+= bankAlgorithmData.allocated[i][k];
+                    }
+                    finish[i] = 1;
+                    processRunSequence[finishNumber] = i;
+                    finishNumber++;
+                    flag = 1;                    
+                }
+            }
+            if(flag){
+                break;
+            }
+        }        
+        if(flag == 0){
+            return 0;
+        }
+        if(finishNumber == processNumber){
+            return 1;
+        }
+    }
+    return 0;
+}
+void bankAlgorithm(int processId,int requestResourceNumber[MAX_RESOURCE_NUMBER] ){
+    for(int i = 0; i < resourceNumber; ++i){
+        bankAlgorithmData.allocated[processId][i] += requestResourceNumber[i];
+        bankAlgorithmData.available[i] -= requestResourceNumber[i];        
+    }
+    synchronousNeed();
+
+    if(safeAlgorithm() == 1){
+        printf("State is safe, and request is satisfied\n");
+    }
+    else{
+        for(int i = 0; i < resourceNumber; ++i){
+            bankAlgorithmData.available[i] += requestResourceNumber[i];
+            bankAlgorithmData.allocated[processId][i] -= requestResourceNumber[i];
+        }
+        synchronousNeed();
+    }
+}
+void runRQ(){
+    int processId;
+    int requestResourceNumber[resourceNumber];
+    scanf("%d",&processId);
+    for(int i = 0; i < resourceNumber; ++i){
+        scanf("%d",&requestResourceNumber[i]);
+    }
+    bankAlgorithm(processId,requestResourceNumber);
+}
+
+void runRL(){
+    int processId;
+    scanf("%d",&processId);
+    int releaseResourceNumber[resourceNumber];
+    int inputValid = 1;
+    for(int i = 0; i < resourceNumber; ++i){
+        scanf("%d",&releaseResourceNumber[i]);
+        if(releaseResourceNumber[i] > bankAlgorithmData.allocated[processId][i] ){
+            inputValid = 0;
+        }
+    }           
+    if(inputValid){
+        for(int i = 0; i < resourceNumber; ++i){
+            bankAlgorithmData.available[i] += releaseResourceNumber[i];
+            bankAlgorithmData.allocated[processId][i] -= releaseResourceNumber[i];
+        }
+        synchronousNeed();
+        printf("The resources have been released successfully\n") ;
+    }
+}
+
+void runStatus(){
+
+}
+void runRun(){
+
+}
+void loopCommand(){
+    while(1){
+        char command[100];
+        printf("Enter Command:");
+        scanf("%s",command);
+        if(strcmp(command,"RQ") == 0){
+            runRQ();
+        }
+        else if(strcmp(command,"RL") == 0){
+            runRL();
+        }
+        else if(strcmp(command,"Status") == 0){
+            runStatus();
+        }
+        else if(strcmp(command,"Run") == 0){
+            runRun();
+        }
+        else if(strcmp(command,"Exit") == 0){
+            break;
+        }
+    }
+}
+
 int main(int argc,char * argv[]) {
     for(int i = 1; i < argc; ++i){
         bankAlgorithmData.available[i-1] = atoi(argv[i]);
@@ -77,5 +192,6 @@ int main(int argc,char * argv[]) {
     }
     readFileInitData();
     printfBaseInformation();
+    loopCommand();
 	return 0;
 }
